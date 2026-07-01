@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TradingAgents, rebuilt in the open</title>
+<style>
+:root { --ink:#0f172a; --muted:#475569; --line:#e2e8f0; --accent:#4f46e5;
+        --bg:#ffffff; --code-bg:#0f172a; --code-ink:#e2e8f0; }
+* { box-sizing:border-box; }
+body { margin:0; background:#f8fafc; color:var(--ink);
+  font:17px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,Arial,sans-serif; }
+.wrap { max-width:840px; margin:0 auto; padding:56px 24px 96px; background:var(--bg); }
+h1 { font-size:2.15rem; line-height:1.2; letter-spacing:-.02em; margin:.2em 0 .1em; }
+h3 { color:var(--muted); font-weight:600; margin-top:0; }
+h2 { font-size:1.55rem; margin:2.2em 0 .6em; padding-top:1.2em; border-top:1px solid var(--line);
+     letter-spacing:-.01em; }
+h4 { font-size:1.15rem; margin:1.8em 0 .4em; }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+blockquote { margin:1.4em 0; padding:.6em 1.1em; border-left:4px solid var(--accent);
+  background:#eef2ff; color:#334155; border-radius:0 8px 8px 0; font-size:.96em; }
+figure { margin:1.8em 0; text-align:center; }
+figure svg { max-width:100%; height:auto; border:1px solid var(--line); border-radius:12px;
+  background:#fff; box-shadow:0 1px 6px rgba(15,23,42,.06); }
+figcaption { color:var(--muted); font-size:.85em; margin-top:.5em; }
+table { border-collapse:collapse; width:100%; margin:1.4em 0; font-size:.94em; }
+th,td { border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top; }
+th { background:#f1f5f9; }
+tr:nth-child(even) td { background:#fafbfc; }
+code { font-family:'JetBrains Mono',SFMono-Regular,Consolas,monospace; font-size:.86em;
+  background:#eef2ff; color:#3730a3; padding:.12em .38em; border-radius:5px; }
+pre { background:var(--code-bg); color:var(--code-ink); padding:18px 20px; border-radius:12px;
+  overflow-x:auto; font-size:.86em; line-height:1.55; }
+pre code { background:none; color:inherit; padding:0; }
+hr { border:none; border-top:1px solid var(--line); margin:2.4em 0; }
+em { color:var(--muted); }
+.wrap > p:last-child em { font-size:.88em; }
+</style></head>
+<body><div class="wrap">
+<h1>TradingAgents, rebuilt in the open</h1>
+<h3>How a multi-agent "trading firm" works — and how to run one with no API keys</h3>
+<blockquote>
+<p>Part of a series that takes a trending AI repository (spotted by
+<a href="https://github.com/batlabx/gittyboy">Gittyboy</a>) and does two things: explain the design <em>only through
+pictures and code</em>, then rebuild it as a fully open-source stack. This one is about
+<strong><a href="https://github.com/TauricResearch/TradingAgents">TauricResearch/TradingAgents</a></strong> (<a href="https://arxiv.org/abs/2412.20138">arXiv 2412.20138</a>) — a multi-agent LLM
+framework that mirrors a real trading firm. The working rewrite is in <a href="src/open_tradingagents"><code>src/</code></a>.</p>
+<p>⚠️ <strong>Educational / research only — not investment advice.</strong> This article and the accompanying code
+exist to explain a <em>multi-agent software pattern</em>. The system's "BUY/SELL/HOLD" output is an
+illustration of agent reasoning, <strong>not</strong> a recommendation to trade any security. Nothing here is
+financial advice; do not use it to make real trading decisions.</p>
+</blockquote>
+<hr />
+<h2>1. The problem it solves</h2>
+<p>Ask a single LLM "should I buy NVDA?" and you get one model's overconfident guess in one voice. That is exactly how <em>not</em> to make a decision under uncertainty, and it's how most "LLM-for-trading" repos work: a prompt wrapper around a price feed.</p>
+<p>Real trading desks are deliberately adversarial. They split the work across people who are <em>supposed</em> to disagree: analysts who each own one lens (fundamentals, technicals, news, sentiment), researchers who argue the bull case against the bear case, a trader who commits to a position, and risk managers who can veto it. The decision is the <em>output of structured disagreement</em>, and it comes with a paper trail explaining itself.</p>
+<p>TradingAgents reproduces that firm as a <strong>LangGraph multi-agent pipeline</strong>. Instead of one prompt's confidence, you get a debate: a bull and a bear argue over the analysts' evidence, a research manager rules, a trader proposes, three risk personas fight over sizing, and a portfolio manager makes the final call. Every step is logged, so the decision explains its own reasoning.</p>
+<h3>Practical use cases</h3>
+<table>
+<thead>
+<tr>
+<th>You want to…</th>
+<th>TradingAgents gives you…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Study how model choice changes decisions</strong></td>
+<td>swap the LLM (GPT, Claude, Qwen, Llama…) and re-run the same firm on the same ticker to compare</td>
+</tr>
+<tr>
+<td><strong>Backtest a <em>reasoning process</em>, not just a signal</strong></td>
+<td>reproducible, logged multi-agent decisions on historical dates you can audit step by step</td>
+</tr>
+<tr>
+<td><strong>Get an explained call instead of a black box</strong></td>
+<td>a bull/bear + risk debate transcript behind every BUY/SELL/HOLD, so you can see <em>why</em></td>
+</tr>
+<tr>
+<td><strong>Learn a real, non-trivial LangGraph app</strong></td>
+<td>a working example of nested debate loops, dynamic routing, and reflection memory</td>
+</tr>
+<tr>
+<td><strong>Prototype an analyst assistant</strong></td>
+<td>point the analyst agents at a ticker and get four sourced, single-lens briefs in one run</td>
+</tr>
+</tbody>
+</table>
+<p>The point is not to predict prices. It's to make the <em>reasoning</em> explicit, debatable, and inspectable — the opposite of a one-prompt oracle.</p>
+<hr />
+<h2>2. How it works, in pictures</h2>
+<p>The one-sentence description is a five-stage assembly line: <strong>Analyst Team → Research debate → Trader → Risk debate → Portfolio Manager.</strong> Data flows in at the left; a decision (with its rationale) comes out at the right.</p>
+<h3>Architecture</h3>
+<p><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 900" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"><rect width="1320" height="900" fill="#ffffff"/><defs><marker id="ar--475569" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker><marker id="ar--7c3aed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/></marker><marker id="ar--94a3b8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker><marker id="ar--0d9488" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs><rect x="30" y="100" width="232" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="46" y="87" width="127.2" height="24" rx="12" fill="#4f46e5"/>
+<text x="109.6" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">1 · Analyst Team</text>
+<rect x="44" y="128" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="128" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="154" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Market Analyst</text>
+<text x="146.0" y="174" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">price action + technicals</text>
+<rect x="44" y="202" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="202" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="228" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">News Analyst</text>
+<text x="146.0" y="248" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">headlines + macro</text>
+<rect x="44" y="276" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="276" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="302" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Fundamentals</text>
+<text x="146.0" y="322" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">financials · filings</text>
+<rect x="44" y="350" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="350" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="376" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Sentiment</text>
+<text x="146.0" y="396" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">social / forum buzz</text>
+<rect x="286" y="100" width="232" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="302" y="87" width="134.4" height="24" rx="12" fill="#4f46e5"/>
+<text x="369.2" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">2 · Research Team</text>
+<rect x="300" y="140" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="140" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="402.0" y="166" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Bull Researcher</text>
+<text x="402.0" y="186" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">argues the buy case</text>
+<rect x="300" y="236" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="236" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="402.0" y="262" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Bear Researcher</text>
+<text x="402.0" y="282" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">argues the sell case</text>
+<rect x="300" y="336" width="204" height="74" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="336" width="6" height="74" rx="3" fill="#059669"/>
+<text x="402.0" y="362" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Research Manager</text>
+<text x="402.0" y="382" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">judges debate → plan</text>
+<path d="M 402 206 L 402 236" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="368.2" y="202.0" width="67.6" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="402.0" y="215.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" fill="#475569" text-anchor="middle" style="">debate ×N</text>
+<rect x="542" y="100" width="150" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="558" y="87" width="84.0" height="24" rx="12" fill="#4f46e5"/>
+<text x="600.0" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">3 · Trader</text>
+<rect x="556" y="250" width="122" height="120" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="556" y="250" width="6" height="120" rx="3" fill="#4f46e5"/>
+<text x="617.0" y="276" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Trader</text>
+<text x="617.0" y="296" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">drafts the trade</text>
+<rect x="716" y="100" width="256" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="732" y="87" width="105.60000000000001" height="24" rx="12" fill="#4f46e5"/>
+<text x="784.8" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">4 · Risk Team</text>
+<rect x="730" y="128" width="228" height="58" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="128" width="6" height="58" rx="3" fill="#4f46e5"/>
+<text x="844.0" y="154" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Risky Debator</text>
+<text x="844.0" y="174" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">maximise upside</text>
+<rect x="730" y="194" width="228" height="58" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="194" width="6" height="58" rx="3" fill="#4f46e5"/>
+<text x="844.0" y="220" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Neutral Debator</text>
+<text x="844.0" y="240" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">balanced view</text>
+<rect x="730" y="260" width="228" height="58" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="260" width="6" height="58" rx="3" fill="#4f46e5"/>
+<text x="844.0" y="286" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Safe Debator</text>
+<text x="844.0" y="306" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">protect capital</text>
+<rect x="730" y="344" width="228" height="66" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="344" width="6" height="66" rx="3" fill="#059669"/>
+<text x="844.0" y="370" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Risk Manager</text>
+<text x="844.0" y="390" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">judges → risk verdict</text>
+<rect x="996" y="100" width="294" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="1012" y="87" width="163.20000000000002" height="24" rx="12" fill="#4f46e5"/>
+<text x="1093.6" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">5 · Portfolio Manager</text>
+<rect x="1012" y="190" width="262" height="84" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="1012" y="190" width="6" height="84" rx="3" fill="#4f46e5"/>
+<text x="1143.0" y="216" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Portfolio Manager</text>
+<text x="1143.0" y="236" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">approve / reject the trade</text>
+<rect x="1012" y="320" width="262" height="90" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="1012" y="320" width="6" height="90" rx="3" fill="#059669"/>
+<text x="1143.0" y="346" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Decision</text>
+<text x="1143.0" y="366" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">BUY · SELL · HOLD + rationale</text>
+<path d="M 1143 274 L 1143 320" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<path d="M 262 300 L 286 300" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="240.2" y="281.0" width="67.6" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="274.0" y="294.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">4 reports</text>
+<path d="M 518 360 L 542 310" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="489.8" y="316.0" width="80.4" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="530.0" y="329.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">invest plan</text>
+<path d="M 692 300 L 716 300" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="683.0" y="281.0" width="42.0" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="704.0" y="294.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">trade</text>
+<path d="M 972 360 L 996 250" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="940.6" y="286.0" width="86.80000000000001" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="984.0" y="299.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">risk verdict</text>
+<rect x="30" y="588" width="762" height="160" rx="16" ry="16" fill="none" stroke="#0d9488" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="46" y="575" width="148.8" height="24" rx="12" fill="#0d9488"/>
+<text x="120.4" y="591" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">Market Data (tools)</text>
+<rect x="46" y="620" width="170" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="46" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="131.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Prices</text>
+<text x="131.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">FinnHub · Yahoo</text>
+<rect x="232" y="620" width="170" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="232" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="317.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">News</text>
+<text x="317.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">FinnHub · Google</text>
+<rect x="418" y="620" width="176" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="418" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="506.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Fundamentals</text>
+<text x="506.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">SimFin · FinnHub</text>
+<rect x="610" y="620" width="166" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="610" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="693.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Technicals</text>
+<text x="693.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">StockStats</text>
+<rect x="812" y="588" width="478" height="160" rx="16" ry="16" fill="none" stroke="#475569" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="828" y="575" width="120.0" height="24" rx="12" fill="#475569"/>
+<text x="888.0" y="591" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">Memory &amp; Models</text>
+<rect x="828" y="620" width="214" height="62" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="828" y="620" width="6" height="62" rx="3" fill="#334155"/>
+<text x="935.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Memory / Reflection</text>
+<text x="935.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">learns from past trades</text>
+<rect x="1056" y="620" width="218" height="62" rx="12" ry="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" filter="url(#sh)"/>
+<rect x="1056" y="620" width="6" height="62" rx="3" fill="#7c3aed"/>
+<text x="1165.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">LLM tiers</text>
+<text x="1165.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">deep + quick think (cloud)</text>
+<path d="M 300 588 Q 225.0 473.0 150 418" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#ar--0d9488)"/>
+<rect x="184.8" y="484.0" width="80.4" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="225.0" y="497.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">market data</text>
+<path d="M 1051 588 Q 975.5 505.0 900 470" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#ar--7c3aed)"/>
+<rect x="887.3" y="510.0" width="176.4" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="975.5" y="523.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">every agent → LLM + memory</text>
+<g>
+<rect x="60" y="851" width="16" height="16" rx="4" fill="#eef2ff" stroke="#4f46e5" stroke-width="2"/>
+<text x="84" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Agent</text>
+<rect x="232" y="851" width="16" height="16" rx="4" fill="#ecfeff" stroke="#0d9488" stroke-width="2"/>
+<text x="256" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Tool</text>
+<rect x="404" y="851" width="16" height="16" rx="4" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+<text x="428" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Judge / output</text>
+<rect x="576" y="851" width="16" height="16" rx="4" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="600" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Model</text>
+<rect x="748" y="851" width="16" height="16" rx="4" fill="#f1f5f9" stroke="#334155" stroke-width="2"/>
+<text x="772" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Infra</text>
+</g>
+<text x="660.0" y="34" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle" style="">TradingAgents — Architecture (as shipped)</text>
+<text x="660.0" y="58" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="normal" fill="#475569" text-anchor="middle" style="">A trading firm as a LangGraph pipeline: Analysts → Research debate → Trader → Risk debate → Portfolio Manager</text></svg><figcaption>TradingAgents architecture</figcaption></figure></p>
+<p>Three things to read off it:</p>
+<ol>
+<li><strong>It's a firm, not a prompt.</strong> Thirteen agents in five stages, each with a narrow job. The "intelligence" is in the <em>structure</em> — specialization plus adversarial debate — as much as in any single model call.</li>
+<li><strong>Judges gate every stage.</strong> The green boxes (Research Manager, Risk Manager, Portfolio Manager) are decision points that consume a debate and emit a ruling. That is what turns argument into a decision.</li>
+<li><strong>Data is a separate layer.</strong> The analysts are the only agents that touch the outside world, and only through tools. Everything downstream reasons over their reports plus a reflection memory of past outcomes.</li>
+</ol>
+<h3>The agents, tools, and skills</h3>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Name</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟦 Agent</td>
+<td><strong>Market / News / Fundamentals / Sentiment analysts</strong></td>
+<td>Each produces one single-lens, sourced report</td>
+</tr>
+<tr>
+<td>🟦 Agent</td>
+<td><strong>Bull &amp; Bear researchers</strong></td>
+<td>Argue long vs short over N rounds</td>
+</tr>
+<tr>
+<td>🟩 Judge</td>
+<td><strong>Research Manager</strong></td>
+<td>Rules the debate → investment plan</td>
+</tr>
+<tr>
+<td>🟦 Agent</td>
+<td><strong>Trader</strong></td>
+<td>Turns the plan into a concrete proposal</td>
+</tr>
+<tr>
+<td>🟦 Agent</td>
+<td><strong>Risky / Neutral / Safe debators</strong></td>
+<td>Fight over position sizing</td>
+</tr>
+<tr>
+<td>🟩 Judge</td>
+<td><strong>Risk Manager</strong></td>
+<td>Rules → risk-adjusted trade</td>
+</tr>
+<tr>
+<td>🟩 Judge</td>
+<td><strong>Portfolio Manager</strong></td>
+<td>Final approve/reject → BUY / SELL / HOLD</td>
+</tr>
+<tr>
+<td>🟩 Tool</td>
+<td><strong>get_prices / get_fundamentals / get_news / get_technicals</strong></td>
+<td>Market-data capabilities the analysts call</td>
+</tr>
+<tr>
+<td>🟧 Skill</td>
+<td><strong>Debate &amp; report playbooks</strong></td>
+<td>How to argue; how to format the final call</td>
+</tr>
+<tr>
+<td>⬛ Infra</td>
+<td><strong>Reflection memory</strong></td>
+<td>Lessons from past decisions, recalled by the judge</td>
+</tr>
+</tbody>
+</table>
+<h3>Sequence of a single decision</h3>
+<p><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 770" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"><rect width="1360" height="770" fill="#ffffff"/><defs><marker id="ar--475569" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker><marker id="ar--7c3aed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/></marker><marker id="ar--94a3b8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker><marker id="ar--0d9488" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs><rect x="29.0" y="70" width="122" height="42" rx="11" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="29.0" y="70" width="6" height="42" rx="3" fill="#334155"/>
+<text x="90.0" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Config</text>
+<line x1="90.0" y1="114" x2="90.0" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="197.57142857142856" y="70" width="122" height="42" rx="11" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="197.57142857142856" y="70" width="6" height="42" rx="3" fill="#4f46e5"/>
+<text x="258.57142857142856" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Analysts</text>
+<line x1="258.57142857142856" y1="114" x2="258.57142857142856" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="366.14285714285717" y="70" width="122" height="42" rx="11" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="366.14285714285717" y="70" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="427.14285714285717" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Data APIs</text>
+<line x1="427.14285714285717" y1="114" x2="427.14285714285717" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="534.7142857142858" y="70" width="122" height="42" rx="11" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="534.7142857142858" y="70" width="6" height="42" rx="3" fill="#4f46e5"/>
+<text x="595.7142857142858" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Bull / Bear</text>
+<line x1="595.7142857142858" y1="114" x2="595.7142857142858" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="703.2857142857143" y="70" width="122" height="42" rx="11" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="703.2857142857143" y="70" width="6" height="42" rx="3" fill="#059669"/>
+<text x="764.2857142857143" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Research Mgr</text>
+<line x1="764.2857142857143" y1="114" x2="764.2857142857143" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="871.8571428571429" y="70" width="122" height="42" rx="11" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="871.8571428571429" y="70" width="6" height="42" rx="3" fill="#4f46e5"/>
+<text x="932.8571428571429" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Trader</text>
+<line x1="932.8571428571429" y1="114" x2="932.8571428571429" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="1040.4285714285716" y="70" width="122" height="42" rx="11" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="1040.4285714285716" y="70" width="6" height="42" rx="3" fill="#4f46e5"/>
+<text x="1101.4285714285716" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Risk Team</text>
+<line x1="1101.4285714285716" y1="114" x2="1101.4285714285716" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="1205.0" y="70" width="130" height="42" rx="11" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="1205.0" y="70" width="6" height="42" rx="3" fill="#059669"/>
+<text x="1270.0" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Portfolio Mgr</text>
+<line x1="1270.0" y1="114" x2="1270.0" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<line x1="90.0" y1="142" x2="258.57142857142856" y2="142" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="127.98571428571427" y="123" width="92.60000000000001" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="174.28571428571428" y="136" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">ticker + date</text>
+<line x1="258.57142857142856" y1="192" x2="427.14285714285717" y2="192" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="191.15714285714287" y="173" width="303.40000000000003" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="342.8571428571429" y="186" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">fetch prices / news / fundamentals / technicals</text>
+<line x1="427.14285714285717" y1="242" x2="258.57142857142856" y2="242" stroke="#94a3b8" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#ar--94a3b8)"/>
+<rect x="290.3571428571429" y="223" width="105.0" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="342.8571428571429" y="236" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">raw market data</text>
+<line x1="258.57142857142856" y1="292" x2="595.7142857142858" y2="292" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="368.4428571428572" y="273" width="117.4" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="427.14285714285717" y="286" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">4 analyst reports</text>
+<path d="M 595.7142857142858 334 h 54 v 22 h -54" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar--94a3b8)"/>
+<text x="657.7142857142858" y="340" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#475569" text-anchor="start" style="">bull vs bear debate ×N rounds</text>
+<line x1="595.7142857142858" y1="384" x2="764.2857142857143" y2="384" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="621.3" y="365" width="117.4" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="680.0" y="378" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">debate transcript</text>
+<line x1="764.2857142857143" y1="434" x2="932.8571428571429" y2="434" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="740.2714285714287" y="415" width="216.6" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="848.5714285714287" y="428" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">investment plan (long/short/hold)</text>
+<line x1="932.8571428571429" y1="484" x2="1101.4285714285716" y2="484" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="967.7428571428572" y="465" width="98.8" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="1017.1428571428572" y="478" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">proposed trade</text>
+<path d="M 1101.4285714285716 526 h 54 v 22 h -54" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar--94a3b8)"/>
+<text x="1163.4285714285716" y="532" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#475569" text-anchor="start" style="">risky / neutral / safe debate ×N</text>
+<line x1="1101.4285714285716" y1="576" x2="1270.0" y2="576" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1120.8142857142857" y="557" width="129.8" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="1185.7142857142858" y="570" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">risk-adjusted trade</text>
+<rect x="244.57142857142856" y="606" width="1039.4285714285716" height="30" rx="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.6"/>
+<text x="764.2857142857142" y="625" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">every agent calls the cloud LLM; reflection memory updated after the outcome is known</text>
+<line x1="1270.0" y1="676" x2="90.0" y2="676" stroke="#94a3b8" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#ar--94a3b8)"/>
+<rect x="534.5" y="657" width="291.0" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="680.0" y="670" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">final decision: BUY / SELL / HOLD + rationale</text>
+<text x="680.0" y="34" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle" style="">TradingAgents — Sequence of one decision</text>
+<text x="680.0" y="58" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="normal" fill="#475569" text-anchor="middle" style="">Analyst reports → bull/bear debate → trade → risk debate → portfolio verdict</text></svg><figcaption>TradingAgents sequence</figcaption></figure></p>
+<p>Notice the two self-loops: the bull/bear debate and the risk debate each cycle for several rounds before their judge steps in. That looping-then-judging shape is the core mechanic, and §4's code shows it's just a counter and a <code>goto</code>.</p>
+<hr />
+<h2>3. How to build an open-source version</h2>
+<p>As with most LangGraph projects, the framework is <em>already</em> open. What ties TradingAgents to paid infrastructure is two things: the <strong>cloud LLM</strong> (GPT/Claude keys) and the <strong>market-data vendors</strong> (FinnHub, SimFin, Reddit — all keyed). Swap those and the firm runs on a laptop.</p>
+<p><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 722" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"><rect width="1240" height="722" fill="#ffffff"/><defs><marker id="ar--475569" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker><marker id="ar--7c3aed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/></marker><marker id="ar--94a3b8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker><marker id="ar--0d9488" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs><text x="478.0" y="132" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="800" fill="#4f46e5" text-anchor="middle" style="">TradingAgents (as shipped)</text>
+<text x="878.0" y="132" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="800" fill="#059669" text-anchor="middle" style="">Open-source equivalent</text>
+<text x="155" y="132" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="800" fill="#475569" text-anchor="middle" style="">Concern</text>
+<text x="155" y="183.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Orchestration</text>
+<rect x="300" y="158" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="158" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="184" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">LangGraph state machine</text>
+<rect x="700" y="158" width="356" height="42" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="158" width="6" height="42" rx="3" fill="#059669"/>
+<text x="878.0" y="184" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">LangGraph state machine</text>
+<path d="M 662 179.0 L 694 179.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="166.0" width="52" height="26" rx="13" fill="#059669"/>
+<text x="1096.0" y="183.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">keep</text>
+<text x="155" y="241.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Reasoning model</text>
+<rect x="300" y="216" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="216" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="242" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">GPT / Claude (API keys)</text>
+<rect x="700" y="216" width="356" height="42" rx="12" ry="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="216" width="6" height="42" rx="3" fill="#7c3aed"/>
+<text x="878.0" y="242" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Ollama · Qwen2.5 / Llama-3.1</text>
+<path d="M 662 237.0 L 694 237.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="224.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="241.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="299.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Prices &amp; OHLCV</text>
+<rect x="300" y="274" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="274" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="300" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">FinnHub / Yahoo (keys)</text>
+<rect x="700" y="274" width="356" height="42" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="274" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="878.0" y="300" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">yfinance — keyless</text>
+<path d="M 662 295.0 L 694 295.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="282.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="299.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="357.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Fundamentals</text>
+<rect x="300" y="332" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="332" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="358" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">SimFin / FinnHub (keys)</text>
+<rect x="700" y="332" width="356" height="42" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="332" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="878.0" y="358" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">yfinance financials</text>
+<path d="M 662 353.0 L 694 353.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="340.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="357.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="415.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">News feed</text>
+<rect x="300" y="390" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="390" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="416" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">FinnHub / Google News API</text>
+<rect x="700" y="390" width="356" height="42" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="390" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="878.0" y="416" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Google News RSS + feedparser</text>
+<path d="M 662 411.0 L 694 411.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="398.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="415.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="473.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Social sentiment</text>
+<rect x="300" y="448" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="448" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="474" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Reddit API (keys)</text>
+<rect x="700" y="448" width="356" height="42" rx="12" ry="12" fill="#fffbeb" stroke="#d97706" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="448" width="6" height="42" rx="3" fill="#d97706"/>
+<text x="878.0" y="474" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">news-derived sentiment (LLM)</text>
+<path d="M 662 469.0 L 694 469.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="456.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="473.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="531.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Technicals</text>
+<rect x="300" y="506" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="506" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="532" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">StockStats</text>
+<rect x="700" y="506" width="356" height="42" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="506" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="878.0" y="532" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">StockStats / pandas-ta</text>
+<path d="M 662 527.0 L 694 527.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="514.0" width="52" height="26" rx="13" fill="#059669"/>
+<text x="1096.0" y="531.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">keep</text>
+<text x="155" y="589.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Reflection memory</text>
+<rect x="300" y="564" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="564" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="590" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Vector store</text>
+<rect x="700" y="564" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="564" width="6" height="42" rx="3" fill="#334155"/>
+<text x="878.0" y="590" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">ChromaDB (local)</text>
+<path d="M 662 585.0 L 694 585.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="572.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="589.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="647.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Decision log</text>
+<rect x="300" y="622" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="622" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="648" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Persistent log</text>
+<rect x="700" y="622" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="622" width="6" height="42" rx="3" fill="#334155"/>
+<text x="878.0" y="648" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">SQLite</text>
+<path d="M 662 643.0 L 694 643.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="630.0" width="52" height="26" rx="13" fill="#059669"/>
+<text x="1096.0" y="647.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">keep</text>
+<text x="620.0" y="34" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle" style="">TradingAgents → Open-TradingAgents — component mapping</text>
+<text x="620.0" y="58" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="normal" fill="#475569" text-anchor="middle" style="">The agent firm is unchanged; only the data vendors and the model provider get swapped</text></svg><figcaption>TradingAgents → Open-TradingAgents mapping</figcaption></figure></p>
+<p>The rewiring, concretely:</p>
+<ul>
+<li><strong>GPT/Claude → Ollama.</strong> Two tiers (<code>deep_think</code> for debates, <code>quick_think</code> for analyst tool-use) both point at local models.</li>
+<li><strong>FinnHub/SimFin → yfinance.</strong> Keyless prices <em>and</em> fundamentals from one library.</li>
+<li><strong>Google News API → Google News RSS.</strong> The public RSS feed + <code>feedparser</code> needs no key or quota.</li>
+<li><strong>Reddit API → news-derived sentiment.</strong> Rather than scrape a keyed social API, the sentiment analyst infers mood from the tone and volume of news coverage. (Add a Reddit tool later if you want; it's just another MCP server.)</li>
+<li><strong>StockStats stays</strong> — it was already open — and gets a <code>pandas-ta</code> alias.</li>
+</ul>
+<p>Everything else — LangGraph, the debate structure, the reflection memory, MCP — is unchanged.</p>
+<h3>The open-source architecture</h3>
+<p>Same firm, free substrate. The five stages and thirteen agents are identical; only the data layer and model tier changed:</p>
+<p><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 900" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"><rect width="1320" height="900" fill="#ffffff"/><defs><marker id="ar--475569" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker><marker id="ar--7c3aed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/></marker><marker id="ar--94a3b8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker><marker id="ar--0d9488" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs><rect x="30" y="100" width="232" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="46" y="87" width="127.2" height="24" rx="12" fill="#4f46e5"/>
+<text x="109.6" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">1 · Analyst Team</text>
+<rect x="44" y="128" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="128" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="154" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Market Analyst</text>
+<text x="146.0" y="174" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">price action + technicals</text>
+<rect x="44" y="202" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="202" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="228" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">News Analyst</text>
+<text x="146.0" y="248" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">headlines + macro</text>
+<rect x="44" y="276" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="276" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="302" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Fundamentals</text>
+<text x="146.0" y="322" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">financials · filings</text>
+<rect x="44" y="350" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="350" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="376" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Sentiment</text>
+<text x="146.0" y="396" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">social / forum buzz</text>
+<rect x="286" y="100" width="232" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="302" y="87" width="134.4" height="24" rx="12" fill="#4f46e5"/>
+<text x="369.2" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">2 · Research Team</text>
+<rect x="300" y="140" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="140" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="402.0" y="166" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Bull Researcher</text>
+<text x="402.0" y="186" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">argues the buy case</text>
+<rect x="300" y="236" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="236" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="402.0" y="262" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Bear Researcher</text>
+<text x="402.0" y="282" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">argues the sell case</text>
+<rect x="300" y="336" width="204" height="74" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="336" width="6" height="74" rx="3" fill="#059669"/>
+<text x="402.0" y="362" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Research Manager</text>
+<text x="402.0" y="382" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">judges debate → plan</text>
+<path d="M 402 206 L 402 236" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="368.2" y="202.0" width="67.6" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="402.0" y="215.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" fill="#475569" text-anchor="middle" style="">debate ×N</text>
+<rect x="542" y="100" width="150" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="558" y="87" width="84.0" height="24" rx="12" fill="#4f46e5"/>
+<text x="600.0" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">3 · Trader</text>
+<rect x="556" y="250" width="122" height="120" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="556" y="250" width="6" height="120" rx="3" fill="#4f46e5"/>
+<text x="617.0" y="276" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Trader</text>
+<text x="617.0" y="296" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">drafts the trade</text>
+<rect x="716" y="100" width="256" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="732" y="87" width="105.60000000000001" height="24" rx="12" fill="#4f46e5"/>
+<text x="784.8" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">4 · Risk Team</text>
+<rect x="730" y="128" width="228" height="58" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="128" width="6" height="58" rx="3" fill="#4f46e5"/>
+<text x="844.0" y="154" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Risky Debator</text>
+<text x="844.0" y="174" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">maximise upside</text>
+<rect x="730" y="194" width="228" height="58" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="194" width="6" height="58" rx="3" fill="#4f46e5"/>
+<text x="844.0" y="220" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Neutral Debator</text>
+<text x="844.0" y="240" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">balanced view</text>
+<rect x="730" y="260" width="228" height="58" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="260" width="6" height="58" rx="3" fill="#4f46e5"/>
+<text x="844.0" y="286" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Safe Debator</text>
+<text x="844.0" y="306" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">protect capital</text>
+<rect x="730" y="344" width="228" height="66" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="344" width="6" height="66" rx="3" fill="#059669"/>
+<text x="844.0" y="370" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Risk Manager</text>
+<text x="844.0" y="390" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">judges → risk verdict</text>
+<rect x="996" y="100" width="294" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="1012" y="87" width="163.20000000000002" height="24" rx="12" fill="#4f46e5"/>
+<text x="1093.6" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">5 · Portfolio Manager</text>
+<rect x="1012" y="190" width="262" height="84" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="1012" y="190" width="6" height="84" rx="3" fill="#4f46e5"/>
+<text x="1143.0" y="216" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Portfolio Manager</text>
+<text x="1143.0" y="236" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">approve / reject the trade</text>
+<rect x="1012" y="320" width="262" height="90" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="1012" y="320" width="6" height="90" rx="3" fill="#059669"/>
+<text x="1143.0" y="346" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Decision</text>
+<text x="1143.0" y="366" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">BUY · SELL · HOLD + rationale</text>
+<path d="M 1143 274 L 1143 320" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<path d="M 262 300 L 286 300" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="240.2" y="281.0" width="67.6" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="274.0" y="294.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">4 reports</text>
+<path d="M 518 360 L 542 310" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="489.8" y="316.0" width="80.4" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="530.0" y="329.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">invest plan</text>
+<path d="M 692 300 L 716 300" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="683.0" y="281.0" width="42.0" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="704.0" y="294.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">trade</text>
+<path d="M 972 360 L 996 250" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="940.6" y="286.0" width="86.80000000000001" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="984.0" y="299.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">risk verdict</text>
+<rect x="30" y="588" width="762" height="160" rx="16" ry="16" fill="none" stroke="#0d9488" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="46" y="575" width="148.8" height="24" rx="12" fill="#0d9488"/>
+<text x="120.4" y="591" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">Market Data (tools)</text>
+<rect x="46" y="620" width="170" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="46" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="131.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Prices (MCP)</text>
+<text x="131.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">yfinance — no key</text>
+<rect x="232" y="620" width="170" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="232" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="317.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">News (MCP)</text>
+<text x="317.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">Google News RSS</text>
+<rect x="418" y="620" width="176" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="418" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="506.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Fundamentals (MCP)</text>
+<text x="506.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">yfinance financials</text>
+<rect x="610" y="620" width="166" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="610" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="693.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Technicals (MCP)</text>
+<text x="693.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">stockstats / pandas-ta</text>
+<rect x="812" y="588" width="478" height="160" rx="16" ry="16" fill="none" stroke="#475569" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="828" y="575" width="120.0" height="24" rx="12" fill="#475569"/>
+<text x="888.0" y="591" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">Memory &amp; Models</text>
+<rect x="828" y="620" width="214" height="62" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="828" y="620" width="6" height="62" rx="3" fill="#334155"/>
+<text x="935.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Memory / Reflection</text>
+<text x="935.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">learns from past trades</text>
+<rect x="1056" y="620" width="218" height="62" rx="12" ry="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" filter="url(#sh)"/>
+<rect x="1056" y="620" width="6" height="62" rx="3" fill="#7c3aed"/>
+<text x="1165.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">LLM tiers</text>
+<text x="1165.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">Ollama: Qwen2.5 + Llama-3.1</text>
+<path d="M 300 588 Q 225.0 473.0 150 418" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#ar--0d9488)"/>
+<rect x="184.8" y="484.0" width="80.4" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="225.0" y="497.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">market data</text>
+<path d="M 1051 588 Q 975.5 505.0 900 470" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#ar--7c3aed)"/>
+<rect x="887.3" y="510.0" width="176.4" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="975.5" y="523.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">every agent → LLM + memory</text>
+<g>
+<rect x="60" y="851" width="16" height="16" rx="4" fill="#eef2ff" stroke="#4f46e5" stroke-width="2"/>
+<text x="84" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Agent</text>
+<rect x="232" y="851" width="16" height="16" rx="4" fill="#ecfeff" stroke="#0d9488" stroke-width="2"/>
+<text x="256" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Tool</text>
+<rect x="404" y="851" width="16" height="16" rx="4" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+<text x="428" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Judge / output</text>
+<rect x="576" y="851" width="16" height="16" rx="4" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="600" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Model</text>
+<rect x="748" y="851" width="16" height="16" rx="4" fill="#f1f5f9" stroke="#334155" stroke-width="2"/>
+<text x="772" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Infra</text>
+</g>
+<text x="660.0" y="34" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle" style="">Open-TradingAgents — Architecture (open-source rewrite)</text>
+<text x="660.0" y="58" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="normal" fill="#475569" text-anchor="middle" style="">Identical firm topology; every paid data feed + cloud model swapped for a free / local one</text></svg><figcaption>Open-TradingAgents architecture</figcaption></figure></p>
+<p><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 770" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"><rect width="1360" height="770" fill="#ffffff"/><defs><marker id="ar--475569" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker><marker id="ar--7c3aed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/></marker><marker id="ar--94a3b8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker><marker id="ar--0d9488" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs><rect x="29.0" y="70" width="122" height="42" rx="11" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="29.0" y="70" width="6" height="42" rx="3" fill="#334155"/>
+<text x="90.0" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Config</text>
+<line x1="90.0" y1="114" x2="90.0" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="197.57142857142856" y="70" width="122" height="42" rx="11" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="197.57142857142856" y="70" width="6" height="42" rx="3" fill="#4f46e5"/>
+<text x="258.57142857142856" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Analysts</text>
+<line x1="258.57142857142856" y1="114" x2="258.57142857142856" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="334.14285714285717" y="70" width="186" height="42" rx="11" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="334.14285714285717" y="70" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="427.14285714285717" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">yfinance / RSS (MCP)</text>
+<line x1="427.14285714285717" y1="114" x2="427.14285714285717" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="534.7142857142858" y="70" width="122" height="42" rx="11" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="534.7142857142858" y="70" width="6" height="42" rx="3" fill="#4f46e5"/>
+<text x="595.7142857142858" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Bull / Bear</text>
+<line x1="595.7142857142858" y1="114" x2="595.7142857142858" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="703.2857142857143" y="70" width="122" height="42" rx="11" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="703.2857142857143" y="70" width="6" height="42" rx="3" fill="#059669"/>
+<text x="764.2857142857143" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Research Mgr</text>
+<line x1="764.2857142857143" y1="114" x2="764.2857142857143" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="871.8571428571429" y="70" width="122" height="42" rx="11" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="871.8571428571429" y="70" width="6" height="42" rx="3" fill="#4f46e5"/>
+<text x="932.8571428571429" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Trader</text>
+<line x1="932.8571428571429" y1="114" x2="932.8571428571429" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="1040.4285714285716" y="70" width="122" height="42" rx="11" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="1040.4285714285716" y="70" width="6" height="42" rx="3" fill="#4f46e5"/>
+<text x="1101.4285714285716" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Risk Team</text>
+<line x1="1101.4285714285716" y1="114" x2="1101.4285714285716" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<rect x="1205.0" y="70" width="130" height="42" rx="11" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="1205.0" y="70" width="6" height="42" rx="3" fill="#059669"/>
+<text x="1270.0" y="97" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Portfolio Mgr</text>
+<line x1="1270.0" y1="114" x2="1270.0" y2="744" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 6"/>
+<line x1="90.0" y1="142" x2="258.57142857142856" y2="142" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="127.98571428571427" y="123" width="92.60000000000001" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="174.28571428571428" y="136" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">ticker + date</text>
+<line x1="258.57142857142856" y1="192" x2="427.14285714285717" y2="192" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="191.15714285714287" y="173" width="303.40000000000003" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="342.8571428571429" y="186" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">fetch prices / news / fundamentals / technicals</text>
+<line x1="427.14285714285717" y1="242" x2="258.57142857142856" y2="242" stroke="#94a3b8" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#ar--94a3b8)"/>
+<rect x="290.3571428571429" y="223" width="105.0" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="342.8571428571429" y="236" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">raw market data</text>
+<line x1="258.57142857142856" y1="292" x2="595.7142857142858" y2="292" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="368.4428571428572" y="273" width="117.4" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="427.14285714285717" y="286" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">4 analyst reports</text>
+<path d="M 595.7142857142858 334 h 54 v 22 h -54" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar--94a3b8)"/>
+<text x="657.7142857142858" y="340" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#475569" text-anchor="start" style="">bull vs bear debate ×N rounds</text>
+<line x1="595.7142857142858" y1="384" x2="764.2857142857143" y2="384" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="621.3" y="365" width="117.4" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="680.0" y="378" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">debate transcript</text>
+<line x1="764.2857142857143" y1="434" x2="932.8571428571429" y2="434" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="740.2714285714287" y="415" width="216.6" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="848.5714285714287" y="428" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">investment plan (long/short/hold)</text>
+<line x1="932.8571428571429" y1="484" x2="1101.4285714285716" y2="484" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="967.7428571428572" y="465" width="98.8" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="1017.1428571428572" y="478" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">proposed trade</text>
+<path d="M 1101.4285714285716 526 h 54 v 22 h -54" fill="none" stroke="#94a3b8" stroke-width="2" marker-end="url(#ar--94a3b8)"/>
+<text x="1163.4285714285716" y="532" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="normal" fill="#475569" text-anchor="start" style="">risky / neutral / safe debate ×N</text>
+<line x1="1101.4285714285716" y1="576" x2="1270.0" y2="576" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1120.8142857142857" y="557" width="129.8" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="1185.7142857142858" y="570" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">risk-adjusted trade</text>
+<rect x="244.57142857142856" y="606" width="1039.4285714285716" height="30" rx="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.6"/>
+<text x="764.2857142857142" y="625" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">every agent calls the Ollama; reflection memory updated after the outcome is known</text>
+<line x1="1270.0" y1="676" x2="90.0" y2="676" stroke="#94a3b8" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#ar--94a3b8)"/>
+<rect x="534.5" y="657" width="291.0" height="17" rx="6" fill="#ffffff" opacity="0.96"/>
+<text x="680.0" y="670" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle" style="">final decision: BUY / SELL / HOLD + rationale</text>
+<text x="680.0" y="34" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle" style="">Open-TradingAgents — Sequence of one decision</text>
+<text x="680.0" y="58" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="normal" fill="#475569" text-anchor="middle" style="">Same firm workflow — yfinance/RSS for data, Ollama for every model call</text></svg><figcaption>Open-TradingAgents sequence</figcaption></figure></p>
+<hr />
+<h2>4. The code, line by line</h2>
+<p>Full package in <a href="src/open_tradingagents"><code>src/open_tradingagents</code></a>. (<code>agents/</code> = graph nodes, <code>tools/</code> = MCP data servers, <code>skills/</code> = Markdown playbooks.) Here are the load-bearing pieces.</p>
+<h3>4.1 State — carrying two debates</h3>
+<p>The two nested debate records hold running transcripts and a round counter, which is all the looping machinery needs.</p>
+<pre><code class="language-python"># src/open_tradingagents/state.py
+class InvestDebate(TypedDict):
+    bull_history: str      # everything the bull has argued
+    bear_history: str      # everything the bear has argued
+    rounds: int            # completed bull+bear exchanges
+    judge_decision: str    # the research manager's ruling
+
+class TradingState(TypedDict):
+    ticker: str
+    trade_date: str
+    reports: dict                       # one entry per analyst
+    invest_debate: InvestDebate
+    investment_plan: str
+    trader_proposal: str
+    risk_debate: RiskDebate
+    final_decision: str
+    messages: Annotated[list, add_messages]
+</code></pre>
+<h3>4.2 A tool — <code>get_prices</code> as an MCP server</h3>
+<p>The keyless replacement for FinnHub, behind a typed contract. Standalone MCP, so Claude Desktop or Cursor can use it too.</p>
+<pre><code class="language-python"># src/open_tradingagents/tools/prices_server.py
+mcp = FastMCP(&quot;open-tradingagents-prices&quot;)
+
+@mcp.tool()
+def get_prices(ticker: str, lookback_days: int = 180) -&gt; dict:
+    &quot;&quot;&quot;Return a compact price summary for `ticker` over the lookback window.&quot;&quot;&quot;
+    hist = yf.Ticker(ticker).history(period=f&quot;{lookback_days}d&quot;)
+    if hist.empty:
+        return {&quot;ticker&quot;: ticker, &quot;error&quot;: &quot;no data&quot;}
+    close = hist[&quot;Close&quot;]
+    last, first = float(close.iloc[-1]), float(close.iloc[0])
+    return {
+        &quot;ticker&quot;: ticker,
+        &quot;last_close&quot;: round(last, 2),
+        &quot;pct_change_window&quot;: round((last / first - 1) * 100, 2),
+        &quot;period_high&quot;: round(float(hist[&quot;High&quot;].max()), 2),
+        &quot;period_low&quot;: round(float(hist[&quot;Low&quot;].min()), 2),
+        &quot;last_5_closes&quot;: [round(float(x), 2) for x in close.tail(5)],
+    }
+</code></pre>
+<h3>4.3 An agent — one analyst, reused four times</h3>
+<p>A "specialist" is just a prompt + a tool loadout. The factory builds all four analysts; only the arguments differ.</p>
+<pre><code class="language-python"># src/open_tradingagents/agents/analysts.py
+def make_analyst(name: str, tools):
+    agent = create_react_agent(
+        get_llm(&quot;quick_think&quot;), tools=tools,
+        prompt=&quot;You are a rigorous financial analyst. Call the tools you are &quot;
+               &quot;given, cite concrete numbers, and end with a one-line bias.&quot;)
+
+    def node(state):
+        task = ANALYST_PROMPTS[name].format(
+            ticker=state[&quot;ticker&quot;], date=state[&quot;trade_date&quot;])
+        report = agent.invoke({&quot;messages&quot;: [(&quot;user&quot;, task)]})[&quot;messages&quot;][-1].content
+        reports = dict(state.get(&quot;reports&quot;) or {})
+        reports[name] = report
+        return {&quot;reports&quot;: reports}          # static edge -&gt; next analyst
+    return node
+</code></pre>
+<p>…and in the graph, the same factory yields four specialists by changing the tools:</p>
+<pre><code class="language-python"># src/open_tradingagents/graph.py  (excerpt)
+g.add_node(&quot;market_analyst&quot;,       make_analyst(&quot;market&quot;,       [by[&quot;get_prices&quot;], by[&quot;get_technicals&quot;]]))
+g.add_node(&quot;news_analyst&quot;,         make_analyst(&quot;news&quot;,         [by[&quot;get_news&quot;]]))
+g.add_node(&quot;fundamentals_analyst&quot;, make_analyst(&quot;fundamentals&quot;, [by[&quot;get_fundamentals&quot;]]))
+g.add_node(&quot;sentiment_analyst&quot;,    make_analyst(&quot;sentiment&quot;,    [by[&quot;get_news&quot;]]))
+</code></pre>
+<h3>4.4 The debate — a loop is just a counter and a <code>goto</code></h3>
+<p>This is the whole "multi-agent debate" mechanism. The bear increments the round counter and either loops back to the bull or routes to the judge. No framework magic.</p>
+<pre><code class="language-python"># src/open_tradingagents/agents/researchers.py
+def bear_researcher(state) -&gt; Command:
+    d = state[&quot;invest_debate&quot;]
+    text = get_llm(&quot;deep_think&quot;).invoke(
+        BEAR_PROMPT.format(ticker=state[&quot;ticker&quot;], skill=load_skill(&quot;bull_bear_debate&quot;),
+                           reports=_reports(state), bull=d[&quot;bull_history&quot;])).content
+    rounds = d[&quot;rounds&quot;] + 1
+    d = {**d, &quot;bear_history&quot;: d[&quot;bear_history&quot;] + &quot;\n[BEAR] &quot; + text, &quot;rounds&quot;: rounds}
+    goto = &quot;bull_researcher&quot; if rounds &lt; CONFIG.max_debate_rounds else &quot;research_manager&quot;
+    return Command(goto=goto, update={&quot;invest_debate&quot;: d})   # &lt;- loop or judge
+</code></pre>
+<p>The judge then reads the whole transcript <em>plus lessons from memory</em> and rules:</p>
+<pre><code class="language-python"># src/open_tradingagents/agents/researchers.py
+def research_manager(state) -&gt; Command:
+    d = state[&quot;invest_debate&quot;]
+    decision = get_llm(&quot;deep_think&quot;).invoke(
+        RESEARCH_MANAGER_PROMPT.format(
+            ticker=state[&quot;ticker&quot;], bull=d[&quot;bull_history&quot;], bear=d[&quot;bear_history&quot;],
+            memory=recall(state[&quot;ticker&quot;]))).content        # reflection memory
+    return Command(goto=&quot;trader&quot;,
+                   update={&quot;invest_debate&quot;: {**d, &quot;judge_decision&quot;: decision},
+                           &quot;investment_plan&quot;: decision})
+</code></pre>
+<p>The risk team (<code>risky → safe → neutral → risk_manager</code>) is the <em>same</em> loop with different personas — proof that once you have the pattern, adding a "team" is prompts, not plumbing.</p>
+<h3>4.5 A skill — how the manager writes the call</h3>
+<p>The portfolio manager calls no tools. Its output <em>format</em> is a skill — Markdown, editable by an analyst, not an engineer.</p>
+<pre><code class="language-python"># src/open_tradingagents/agents/portfolio_manager.py
+def portfolio_manager(state) -&gt; Command:
+    final = get_llm(&quot;deep_think&quot;).invoke(
+        PORTFOLIO_MANAGER_PROMPT.format(
+            ticker=state[&quot;ticker&quot;], skill=load_skill(&quot;trade_report&quot;),  # &lt;- playbook
+            risk_decision=state[&quot;risk_debate&quot;][&quot;judge_decision&quot;],
+            plan=state[&quot;investment_plan&quot;])).content
+    return Command(goto=END, update={&quot;final_decision&quot;: final})
+</code></pre>
+<h3>Why is something a <em>tool</em> and not a <em>skill</em>?</h3>
+<p>The single most useful design distinction, and this repo is a clean split:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Tool</strong> (<code>get_prices</code>, <code>get_news</code>)</th>
+<th><strong>Skill</strong> (<code>bull_bear_debate.md</code>, <code>trade_report.md</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Has an API boundary?</td>
+<td><strong>Yes</strong> — <code>ticker → typed data</code></td>
+<td>No — it's prose</td>
+</tr>
+<tr>
+<td>Side effects?</td>
+<td><strong>Yes</strong> — network call to a data source</td>
+<td>None</td>
+</tr>
+<tr>
+<td>How the model uses it</td>
+<td>The model <strong>calls</strong> it and reads the result</td>
+<td>The model <strong>reads</strong> it to shape its reasoning</td>
+</tr>
+<tr>
+<td>Who owns it</td>
+<td>An engineer (it's code)</td>
+<td>A trader / analyst (it's Markdown)</td>
+</tr>
+<tr>
+<td>Where it lives</td>
+<td>Behind <strong>MCP</strong>, reusable by any client</td>
+<td>A file the agent loads at runtime</td>
+</tr>
+</tbody>
+</table>
+<p>Rule of thumb: <strong>if it fetches or computes a verifiable value, it's a tool — put it behind MCP. If it's judgment about <em>how to reason</em>, it's a skill — keep it as editable text.</strong> "Get AAPL's RSI" is a tool (there's a right answer). "How a bull should argue" is a skill (there's only better or worse). Notice the reflection <em>memory</em> is neither — it's infrastructure the graph reads around the agents, so it lives outside both <code>tools/</code> and <code>skills/</code>.</p>
+<hr />
+<h2>Run it yourself</h2>
+<pre><code class="language-bash">pip install -e .                        # install the package
+ollama pull qwen2.5:14b-instruct        # the deep-think model
+python -m open_tradingagents.main NVDA --date 2026-01-15
+</code></pre>
+<p>It streams each stage — analysts, debate, trader, risk debate — and prints the final, self-explaining call. Everything runs locally with no API keys.</p>
+<hr />
+<blockquote>
+<p>⚠️ <strong>Educational / research only — not investment advice.</strong> The output is an illustration of a
+multi-agent reasoning process, not a recommendation. Markets involve risk; consult a licensed
+professional before making any investment decision.</p>
+<p><em>Architecture reflects TradingAgents' documented design (analysts → bull/bear research → trader →
+risk debate → portfolio manager; arXiv 2412.20138). Momentum figures in the source Gittyboy brief
+are auto-generated and not independently verified. This repo is a compact educational
+reimplementation, not the original source.</em></p>
+</blockquote>
+</div></body></html>
