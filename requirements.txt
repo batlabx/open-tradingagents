@@ -1,0 +1,17 @@
+# Orchestration (open-source; same as the original)
+langgraph>=0.2.60
+langgraph-checkpoint-sqlite>=2.0.0
+langchain-core>=0.3.0
+
+# Local models — the cloud-LLM swap
+langchain-ollama>=0.2.0
+
+# MCP: data tools as portable servers
+mcp>=1.2.0
+langchain-mcp-adapters>=0.1.0
+
+# Keyless market data (the FinnHub / SimFin / Reddit swaps)
+yfinance>=0.2.40      # prices + fundamentals, no API key
+feedparser>=6.0.11    # Google News RSS
+stockstats>=0.6.2     # technical indicators
+pandas>=2.0.0

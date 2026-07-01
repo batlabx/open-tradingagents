@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "open-tradingagents"
+version = "0.1.0"
+description = "Open-source rewrite of TauricResearch/TradingAgents (LangGraph + Ollama + MCP). Educational only — not investment advice."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=0.2.60",
+    "langgraph-checkpoint-sqlite>=2.0.0",
+    "langchain-core>=0.3.0",
+    "langchain-ollama>=0.2.0",
+    "mcp>=1.2.0",
+    "langchain-mcp-adapters>=0.1.0",
+    "yfinance>=0.2.40",
+    "feedparser>=6.0.11",
+    "stockstats>=0.6.2",
+    "pandas>=2.0.0",
+]
+
+[project.scripts]
+open-tradingagents = "open_tradingagents.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+open_tradingagents = ["skills/*.md"]
