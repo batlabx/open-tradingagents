@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 722" width="1240" height="722" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"><rect width="1240" height="722" fill="#ffffff"/><defs><marker id="ar--475569" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker><marker id="ar--7c3aed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/></marker><marker id="ar--94a3b8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker><marker id="ar--0d9488" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs><text x="478.0" y="132" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="800" fill="#4f46e5" text-anchor="middle" style="">TradingAgents (as shipped)</text>
+<text x="878.0" y="132" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="800" fill="#059669" text-anchor="middle" style="">Open-source equivalent</text>
+<text x="155" y="132" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="800" fill="#475569" text-anchor="middle" style="">Concern</text>
+<text x="155" y="183.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Orchestration</text>
+<rect x="300" y="158" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="158" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="184" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">LangGraph state machine</text>
+<rect x="700" y="158" width="356" height="42" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="158" width="6" height="42" rx="3" fill="#059669"/>
+<text x="878.0" y="184" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">LangGraph state machine</text>
+<path d="M 662 179.0 L 694 179.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="166.0" width="52" height="26" rx="13" fill="#059669"/>
+<text x="1096.0" y="183.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">keep</text>
+<text x="155" y="241.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Reasoning model</text>
+<rect x="300" y="216" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="216" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="242" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">GPT / Claude (API keys)</text>
+<rect x="700" y="216" width="356" height="42" rx="12" ry="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="216" width="6" height="42" rx="3" fill="#7c3aed"/>
+<text x="878.0" y="242" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Ollama · Qwen2.5 / Llama-3.1</text>
+<path d="M 662 237.0 L 694 237.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="224.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="241.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="299.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Prices &amp; OHLCV</text>
+<rect x="300" y="274" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="274" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="300" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">FinnHub / Yahoo (keys)</text>
+<rect x="700" y="274" width="356" height="42" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="274" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="878.0" y="300" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">yfinance — keyless</text>
+<path d="M 662 295.0 L 694 295.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="282.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="299.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="357.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Fundamentals</text>
+<rect x="300" y="332" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="332" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="358" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">SimFin / FinnHub (keys)</text>
+<rect x="700" y="332" width="356" height="42" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="332" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="878.0" y="358" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">yfinance financials</text>
+<path d="M 662 353.0 L 694 353.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="340.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="357.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="415.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">News feed</text>
+<rect x="300" y="390" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="390" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="416" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">FinnHub / Google News API</text>
+<rect x="700" y="390" width="356" height="42" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="390" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="878.0" y="416" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Google News RSS + feedparser</text>
+<path d="M 662 411.0 L 694 411.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="398.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="415.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="473.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Social sentiment</text>
+<rect x="300" y="448" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="448" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="474" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Reddit API (keys)</text>
+<rect x="700" y="448" width="356" height="42" rx="12" ry="12" fill="#fffbeb" stroke="#d97706" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="448" width="6" height="42" rx="3" fill="#d97706"/>
+<text x="878.0" y="474" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">news-derived sentiment (LLM)</text>
+<path d="M 662 469.0 L 694 469.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="456.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="473.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="531.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Technicals</text>
+<rect x="300" y="506" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="506" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="532" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">StockStats</text>
+<rect x="700" y="506" width="356" height="42" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="506" width="6" height="42" rx="3" fill="#0d9488"/>
+<text x="878.0" y="532" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">StockStats / pandas-ta</text>
+<path d="M 662 527.0 L 694 527.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="514.0" width="52" height="26" rx="13" fill="#059669"/>
+<text x="1096.0" y="531.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">keep</text>
+<text x="155" y="589.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Reflection memory</text>
+<rect x="300" y="564" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="564" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="590" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Vector store</text>
+<rect x="700" y="564" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="564" width="6" height="42" rx="3" fill="#334155"/>
+<text x="878.0" y="590" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">ChromaDB (local)</text>
+<path d="M 662 585.0 L 694 585.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="572.0" width="52" height="26" rx="13" fill="#d97706"/>
+<text x="1096.0" y="589.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">swap</text>
+<text x="155" y="647.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Decision log</text>
+<rect x="300" y="622" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="622" width="6" height="42" rx="3" fill="#334155"/>
+<text x="478.0" y="648" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Persistent log</text>
+<rect x="700" y="622" width="356" height="42" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="700" y="622" width="6" height="42" rx="3" fill="#334155"/>
+<text x="878.0" y="648" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">SQLite</text>
+<path d="M 662 643.0 L 694 643.0" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<rect x="1070" y="630.0" width="52" height="26" rx="13" fill="#059669"/>
+<text x="1096.0" y="647.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="800" fill="#fff" text-anchor="middle" style="">keep</text>
+<text x="620.0" y="34" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle" style="">TradingAgents → Open-TradingAgents — component mapping</text>
+<text x="620.0" y="58" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="normal" fill="#475569" text-anchor="middle" style="">The agent firm is unchanged; only the data vendors and the model provider get swapped</text></svg>

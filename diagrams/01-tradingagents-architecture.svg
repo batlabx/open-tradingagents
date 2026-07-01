@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 900" width="1320" height="900" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"><rect width="1320" height="900" fill="#ffffff"/><defs><marker id="ar--475569" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker><marker id="ar--7c3aed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/></marker><marker id="ar--94a3b8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker><marker id="ar--0d9488" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0d9488"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/></filter></defs><rect x="30" y="100" width="232" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="46" y="87" width="127.2" height="24" rx="12" fill="#4f46e5"/>
+<text x="109.6" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">1 · Analyst Team</text>
+<rect x="44" y="128" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="128" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="154" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Market Analyst</text>
+<text x="146.0" y="174" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">price action + technicals</text>
+<rect x="44" y="202" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="202" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="228" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">News Analyst</text>
+<text x="146.0" y="248" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">headlines + macro</text>
+<rect x="44" y="276" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="276" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="302" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Fundamentals</text>
+<text x="146.0" y="322" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">financials · filings</text>
+<rect x="44" y="350" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="44" y="350" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="146.0" y="376" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Sentiment</text>
+<text x="146.0" y="396" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">social / forum buzz</text>
+<rect x="286" y="100" width="232" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="302" y="87" width="134.4" height="24" rx="12" fill="#4f46e5"/>
+<text x="369.2" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">2 · Research Team</text>
+<rect x="300" y="140" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="140" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="402.0" y="166" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Bull Researcher</text>
+<text x="402.0" y="186" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">argues the buy case</text>
+<rect x="300" y="236" width="204" height="66" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="236" width="6" height="66" rx="3" fill="#4f46e5"/>
+<text x="402.0" y="262" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Bear Researcher</text>
+<text x="402.0" y="282" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">argues the sell case</text>
+<rect x="300" y="336" width="204" height="74" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="300" y="336" width="6" height="74" rx="3" fill="#059669"/>
+<text x="402.0" y="362" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Research Manager</text>
+<text x="402.0" y="382" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">judges debate → plan</text>
+<path d="M 402 206 L 402 236" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="368.2" y="202.0" width="67.6" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="402.0" y="215.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="10" font-weight="600" fill="#475569" text-anchor="middle" style="">debate ×N</text>
+<rect x="542" y="100" width="150" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="558" y="87" width="84.0" height="24" rx="12" fill="#4f46e5"/>
+<text x="600.0" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">3 · Trader</text>
+<rect x="556" y="250" width="122" height="120" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="556" y="250" width="6" height="120" rx="3" fill="#4f46e5"/>
+<text x="617.0" y="276" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Trader</text>
+<text x="617.0" y="296" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">drafts the trade</text>
+<rect x="716" y="100" width="256" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="732" y="87" width="105.60000000000001" height="24" rx="12" fill="#4f46e5"/>
+<text x="784.8" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">4 · Risk Team</text>
+<rect x="730" y="128" width="228" height="58" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="128" width="6" height="58" rx="3" fill="#4f46e5"/>
+<text x="844.0" y="154" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Risky Debator</text>
+<text x="844.0" y="174" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">maximise upside</text>
+<rect x="730" y="194" width="228" height="58" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="194" width="6" height="58" rx="3" fill="#4f46e5"/>
+<text x="844.0" y="220" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Neutral Debator</text>
+<text x="844.0" y="240" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">balanced view</text>
+<rect x="730" y="260" width="228" height="58" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="260" width="6" height="58" rx="3" fill="#4f46e5"/>
+<text x="844.0" y="286" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Safe Debator</text>
+<text x="844.0" y="306" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">protect capital</text>
+<rect x="730" y="344" width="228" height="66" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="730" y="344" width="6" height="66" rx="3" fill="#059669"/>
+<text x="844.0" y="370" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Risk Manager</text>
+<text x="844.0" y="390" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">judges → risk verdict</text>
+<rect x="996" y="100" width="294" height="430" rx="16" ry="16" fill="none" stroke="#4f46e5" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="1012" y="87" width="163.20000000000002" height="24" rx="12" fill="#4f46e5"/>
+<text x="1093.6" y="103" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">5 · Portfolio Manager</text>
+<rect x="1012" y="190" width="262" height="84" rx="12" ry="12" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#sh)"/>
+<rect x="1012" y="190" width="6" height="84" rx="3" fill="#4f46e5"/>
+<text x="1143.0" y="216" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Portfolio Manager</text>
+<text x="1143.0" y="236" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">approve / reject the trade</text>
+<rect x="1012" y="320" width="262" height="90" rx="12" ry="12" fill="#ecfdf5" stroke="#059669" stroke-width="2" filter="url(#sh)"/>
+<rect x="1012" y="320" width="6" height="90" rx="3" fill="#059669"/>
+<text x="1143.0" y="346" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="15" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Decision</text>
+<text x="1143.0" y="366" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">BUY · SELL · HOLD + rationale</text>
+<path d="M 1143 274 L 1143 320" fill="none" stroke="#94a3b8" stroke-width="2.2"  marker-end="url(#ar--94a3b8)"/>
+<path d="M 262 300 L 286 300" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="240.2" y="281.0" width="67.6" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="274.0" y="294.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">4 reports</text>
+<path d="M 518 360 L 542 310" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="489.8" y="316.0" width="80.4" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="530.0" y="329.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">invest plan</text>
+<path d="M 692 300 L 716 300" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="683.0" y="281.0" width="42.0" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="704.0" y="294.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">trade</text>
+<path d="M 972 360 L 996 250" fill="none" stroke="#475569" stroke-width="2.2"  marker-end="url(#ar--475569)"/>
+<rect x="940.6" y="286.0" width="86.80000000000001" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="984.0" y="299.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">risk verdict</text>
+<rect x="30" y="588" width="762" height="160" rx="16" ry="16" fill="none" stroke="#0d9488" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="46" y="575" width="148.8" height="24" rx="12" fill="#0d9488"/>
+<text x="120.4" y="591" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">Market Data (tools)</text>
+<rect x="46" y="620" width="170" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="46" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="131.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Prices</text>
+<text x="131.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">FinnHub · Yahoo</text>
+<rect x="232" y="620" width="170" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="232" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="317.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">News</text>
+<text x="317.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">FinnHub · Google</text>
+<rect x="418" y="620" width="176" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="418" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="506.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Fundamentals</text>
+<text x="506.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">SimFin · FinnHub</text>
+<rect x="610" y="620" width="166" height="62" rx="12" ry="12" fill="#ecfeff" stroke="#0d9488" stroke-width="2" filter="url(#sh)"/>
+<rect x="610" y="620" width="6" height="62" rx="3" fill="#0d9488"/>
+<text x="693.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Technicals</text>
+<text x="693.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">StockStats</text>
+<rect x="812" y="588" width="478" height="160" rx="16" ry="16" fill="none" stroke="#475569" stroke-width="1.6" stroke-dasharray="7 5"/>
+<rect x="828" y="575" width="120.0" height="24" rx="12" fill="#475569"/>
+<text x="888.0" y="591" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" style="">Memory &amp; Models</text>
+<rect x="828" y="620" width="214" height="62" rx="12" ry="12" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#sh)"/>
+<rect x="828" y="620" width="6" height="62" rx="3" fill="#334155"/>
+<text x="935.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">Memory / Reflection</text>
+<text x="935.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">learns from past trades</text>
+<rect x="1056" y="620" width="218" height="62" rx="12" ry="12" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" filter="url(#sh)"/>
+<rect x="1056" y="620" width="6" height="62" rx="3" fill="#7c3aed"/>
+<text x="1165.0" y="646" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle" style="">LLM tiers</text>
+<text x="1165.0" y="666" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="normal" fill="#475569" text-anchor="middle" style="">deep + quick think (cloud)</text>
+<path d="M 300 588 Q 225.0 473.0 150 418" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#ar--0d9488)"/>
+<rect x="184.8" y="484.0" width="80.4" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="225.0" y="497.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">market data</text>
+<path d="M 1051 588 Q 975.5 505.0 900 470" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-dasharray="6 5" marker-end="url(#ar--7c3aed)"/>
+<rect x="887.3" y="510.0" width="176.4" height="18" rx="6" fill="#ffffff" opacity="0.92"/>
+<text x="975.5" y="523.0" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" font-weight="600" fill="#475569" text-anchor="middle" style="">every agent → LLM + memory</text>
+<g>
+<rect x="60" y="851" width="16" height="16" rx="4" fill="#eef2ff" stroke="#4f46e5" stroke-width="2"/>
+<text x="84" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Agent</text>
+<rect x="232" y="851" width="16" height="16" rx="4" fill="#ecfeff" stroke="#0d9488" stroke-width="2"/>
+<text x="256" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Tool</text>
+<rect x="404" y="851" width="16" height="16" rx="4" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+<text x="428" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Judge / output</text>
+<rect x="576" y="851" width="16" height="16" rx="4" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="600" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Model</text>
+<rect x="748" y="851" width="16" height="16" rx="4" fill="#f1f5f9" stroke="#334155" stroke-width="2"/>
+<text x="772" y="864" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#475569" text-anchor="start" style="">Infra</text>
+</g>
+<text x="660.0" y="34" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" font-weight="800" fill="#0f172a" text-anchor="middle" style="">TradingAgents — Architecture (as shipped)</text>
+<text x="660.0" y="58" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="13.5" font-weight="normal" fill="#475569" text-anchor="middle" style="">A trading firm as a LangGraph pipeline: Analysts → Research debate → Trader → Risk debate → Portfolio Manager</text></svg>
